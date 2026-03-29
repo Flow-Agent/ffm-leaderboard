@@ -146,7 +146,8 @@ async function loadPeriods() {
 }
 
 async function loadEntries(period) {
-  return query(`period=eq.${encodeURIComponent(period)}&order=deals_closed.desc`);
+  const data = await query(`period=eq.${encodeURIComponent(period)}`);
+  return data.sort((a, b) => b.deals_closed - a.deals_closed || (parseFloat(b.close_rate) || 0) - (parseFloat(a.close_rate) || 0));
 }
 
 function flag(m) { return m === 'US' ? '\u{1F1FA}\u{1F1F8} US' : '\u{1F1F5}\u{1F1F1} PL'; }
