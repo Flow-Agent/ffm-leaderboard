@@ -3,659 +3,281 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FFM Gladiator Challenge — April 2026</title>
+<title>FFM Gladiator Challenge</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-
   * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: #0a0a1a; color: #fff; min-height: 100vh; }
 
-  body {
-    font-family: 'Inter', -apple-system, sans-serif;
-    background: #0a0a1a;
-    color: #ffffff;
-    min-height: 100vh;
-  }
+  /* Period tabs */
+  .period-nav { display: flex; justify-content: center; gap: 8px; padding: 20px 16px 0; }
+  .period-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #667; padding: 10px 24px; border-radius: 24px; cursor: pointer; font: 600 13px 'Inter', sans-serif; letter-spacing: 0.5px; transition: all 0.2s; }
+  .period-btn.active { background: linear-gradient(135deg, #00c9c9, #0088cc); color: #fff; border-color: transparent; }
+  .period-btn:hover:not(.active) { border-color: rgba(255,255,255,0.3); color: #aaa; }
 
-  /* ── HEADER ────────────────────────────────────────────── */
-  .header {
-    text-align: center;
-    padding: 48px 24px 24px;
-    position: relative;
-    overflow: hidden;
-  }
-  .header::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 800px;
-    height: 400px;
-    background: radial-gradient(ellipse, rgba(0,200,200,0.15) 0%, transparent 70%);
-    pointer-events: none;
-  }
-  .header-badge {
-    display: inline-block;
-    background: linear-gradient(135deg, #00c9c9, #0088cc);
-    color: #fff;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    padding: 6px 16px;
-    border-radius: 20px;
-    margin-bottom: 16px;
-  }
-  .header h1 {
-    font-size: 42px;
-    font-weight: 900;
-    letter-spacing: -1px;
-    background: linear-gradient(135deg, #ffffff 0%, #00c9c9 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  .header .subtitle {
-    font-size: 16px;
-    color: #667;
-    margin-top: 8px;
-  }
-  .header .prizes {
-    display: flex;
-    justify-content: center;
-    gap: 32px;
-    margin-top: 24px;
-    flex-wrap: wrap;
-  }
-  .prize-chip {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    padding: 8px 20px;
-    border-radius: 24px;
-    font-size: 14px;
-    font-weight: 600;
-  }
-  .prize-chip.gold { border-color: #ffd700; color: #ffd700; }
-  .prize-chip.silver { border-color: #c0c0c0; color: #c0c0c0; }
-  .prize-chip.bronze { border-color: #cd7f32; color: #cd7f32; }
-  .prize-chip .medal { font-size: 20px; }
+  /* Header */
+  .header { text-align: center; padding: 32px 24px 24px; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: -50%; left: 50%; transform: translateX(-50%); width: 800px; height: 400px; background: radial-gradient(ellipse, rgba(0,200,200,0.15) 0%, transparent 70%); pointer-events: none; }
+  .header-badge { display: inline-block; background: linear-gradient(135deg, #00c9c9, #0088cc); color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 6px 16px; border-radius: 20px; margin-bottom: 16px; }
+  .header h1 { font-size: 42px; font-weight: 900; letter-spacing: -1px; background: linear-gradient(135deg, #fff 0%, #00c9c9 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .header .subtitle { font-size: 22px; color: #dde; margin-top: 14px; font-weight: 700; letter-spacing: 0.5px; text-shadow: 0 0 20px rgba(0,200,200,0.3); }
+  .prizes { display: flex; justify-content: center; gap: 24px; margin-top: 24px; flex-wrap: wrap; }
+  .prize-chip { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 8px 20px; border-radius: 24px; font-size: 14px; font-weight: 600; }
+  .prize-chip.p0 { border-color: #ffd700; color: #ffd700; }
+  .prize-chip.p1 { border-color: #c0c0c0; color: #c0c0c0; }
+  .prize-chip.p2 { border-color: #cd7f32; color: #cd7f32; }
 
-  /* ── GLADIATOR POOL ────────────────────────────────────── */
-  .gladiator-section {
-    max-width: 900px;
-    margin: 40px auto;
-    padding: 0 24px;
-  }
-  .section-title {
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: #00c9c9;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .section-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(90deg, rgba(0,200,200,0.3), transparent);
-  }
-
-  .podium {
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
-    gap: 16px;
-    margin-bottom: 48px;
-    padding: 0 16px;
-  }
-
-  .podium-card {
-    flex: 0 0 auto;
-    width: 220px;
-    text-align: center;
-    position: relative;
-  }
+  /* Podium */
+  .gladiator-section { max-width: 900px; margin: 40px auto; padding: 0 24px; }
+  .section-title { font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #00c9c9; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(0,200,200,0.3), transparent); }
+  .podium { display: flex; justify-content: center; align-items: flex-end; gap: 16px; margin-bottom: 48px; }
+  .podium-card { flex: 0 0 auto; width: 220px; text-align: center; }
   .podium-card.first { order: 2; }
   .podium-card.second { order: 1; }
   .podium-card.third { order: 3; }
-
-  .podium-photo-wrap {
-    position: relative;
-    width: 120px;
-    height: 120px;
-    margin: 0 auto 12px;
-  }
-  .podium-card.first .podium-photo-wrap {
-    width: 150px;
-    height: 150px;
-  }
-  .podium-photo {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-    object-position: top;
-    border: 3px solid #333;
-  }
+  .podium-photo-wrap { position: relative; width: 120px; height: 120px; margin: 0 auto 12px; }
+  .podium-card.first .podium-photo-wrap { width: 150px; height: 150px; }
+  .podium-photo { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; object-position: top; border: 3px solid #333; }
   .podium-card.first .podium-photo { border-color: #ffd700; box-shadow: 0 0 30px rgba(255,215,0,0.3); }
   .podium-card.second .podium-photo { border-color: #c0c0c0; box-shadow: 0 0 20px rgba(192,192,192,0.2); }
   .podium-card.third .podium-photo { border-color: #cd7f32; box-shadow: 0 0 20px rgba(205,127,50,0.2); }
-
-  .podium-rank {
-    position: absolute;
-    bottom: -4px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-    font-size: 14px;
-    color: #0a0a1a;
-  }
+  .podium-rank { position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; color: #0a0a1a; }
   .podium-card.first .podium-rank { background: #ffd700; }
   .podium-card.second .podium-rank { background: #c0c0c0; }
   .podium-card.third .podium-rank { background: #cd7f32; }
-
-  .podium-name {
-    font-size: 16px;
-    font-weight: 700;
-    margin-bottom: 2px;
-  }
+  .podium-name { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
   .podium-card.first .podium-name { font-size: 18px; }
-  .podium-market {
-    font-size: 11px;
-    color: #667;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 12px;
-  }
-  .podium-deals {
-    font-size: 36px;
-    font-weight: 900;
-    line-height: 1;
-  }
+  .podium-market { font-size: 11px; color: #667; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+  .podium-deals { font-size: 36px; font-weight: 900; line-height: 1; }
   .podium-card.first .podium-deals { font-size: 48px; color: #ffd700; }
   .podium-card.second .podium-deals { font-size: 36px; color: #c0c0c0; }
   .podium-card.third .podium-deals { font-size: 36px; color: #cd7f32; }
-  .podium-deals-label {
-    font-size: 11px;
-    color: #667;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-top: 4px;
-  }
-  .podium-prize {
-    margin-top: 12px;
-    font-size: 14px;
-    font-weight: 700;
-    padding: 4px 14px;
-    border-radius: 12px;
-    display: inline-block;
-  }
+  .podium-deals-label { font-size: 11px; color: #667; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+  .podium-prize { margin-top: 12px; font-size: 14px; font-weight: 700; padding: 4px 14px; border-radius: 12px; display: inline-block; }
   .podium-card.first .podium-prize { background: rgba(255,215,0,0.15); color: #ffd700; }
   .podium-card.second .podium-prize { background: rgba(192,192,192,0.15); color: #c0c0c0; }
   .podium-card.third .podium-prize { background: rgba(205,127,50,0.15); color: #cd7f32; }
-
-  .podium-base {
-    margin-top: 16px;
-    border-radius: 8px 8px 0 0;
-  }
+  .podium-base { margin-top: 16px; border-radius: 8px 8px 0 0; }
   .podium-card.first .podium-base { height: 100px; background: linear-gradient(180deg, rgba(255,215,0,0.1), rgba(255,215,0,0.02)); }
   .podium-card.second .podium-base { height: 70px; background: linear-gradient(180deg, rgba(192,192,192,0.1), rgba(192,192,192,0.02)); }
   .podium-card.third .podium-base { height: 50px; background: linear-gradient(180deg, rgba(205,127,50,0.1), rgba(205,127,50,0.02)); }
 
-  /* ── STATS TABLE ───────────────────────────────────────── */
-  .stats-section {
-    max-width: 900px;
-    margin: 0 auto 48px;
-    padding: 0 24px;
-  }
-
-  .stats-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0 8px;
-  }
-  .stats-table th {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: #556;
-    text-align: left;
-    padding: 0 16px 8px;
-  }
+  /* Table */
+  .stats-section { max-width: 900px; margin: 0 auto 48px; padding: 0 24px; }
+  .stats-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+  .stats-table th { font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: #556; text-align: left; padding: 0 16px 8px; }
   .stats-table th:not(:first-child) { text-align: center; }
-
-  .stats-row {
-    background: rgba(255,255,255,0.03);
-    border-radius: 12px;
-    transition: background 0.2s;
-  }
+  .stats-row { background: rgba(255,255,255,0.03); border-radius: 12px; transition: background 0.2s; }
   .stats-row:hover { background: rgba(255,255,255,0.06); }
-  .stats-row td {
-    padding: 16px;
-    vertical-align: middle;
-  }
+  .stats-row td { padding: 16px; vertical-align: middle; }
   .stats-row td:first-child { border-radius: 12px 0 0 12px; }
   .stats-row td:last-child { border-radius: 0 12px 12px 0; }
   .stats-row td:not(:first-child) { text-align: center; }
+  .closer-info { display: flex; align-items: center; gap: 12px; }
+  .closer-photo-sm { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; object-position: top; border: 2px solid #333; }
+  .closer-name { font-weight: 600; font-size: 15px; }
+  .closer-market-tag { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #00c9c9; background: rgba(0,200,200,0.1); padding: 2px 8px; border-radius: 4px; margin-top: 2px; display: inline-block; }
+  .stat-value { font-size: 20px; font-weight: 700; }
+  .stat-label { font-size: 10px; color: #556; text-transform: uppercase; letter-spacing: 0.5px; }
+  .cr-bar-wrap { width: 80px; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin: 6px auto 0; overflow: hidden; }
+  .cr-bar { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #00c9c9, #0088cc); transition: width 0.6s ease; }
+  .gladiator-badge { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 4px 10px; border-radius: 6px; }
+  .gladiator-badge.qualified { background: linear-gradient(135deg, rgba(0,200,200,0.2), rgba(0,136,204,0.2)); color: #00c9c9; border: 1px solid rgba(0,200,200,0.3); }
+  .gladiator-badge.pending { background: rgba(255,255,255,0.05); color: #556; border: 1px solid rgba(255,255,255,0.1); }
 
-  .closer-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .closer-photo-sm {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    object-fit: cover;
-    object-position: top;
-    border: 2px solid #333;
-  }
-  .closer-name {
-    font-weight: 600;
-    font-size: 15px;
-  }
-  .closer-market-tag {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: #00c9c9;
-    background: rgba(0,200,200,0.1);
-    padding: 2px 8px;
-    border-radius: 4px;
-    margin-top: 2px;
-    display: inline-block;
-  }
+  /* Clients */
+  .clients-section { max-width: 900px; margin: 0 auto 48px; padding: 0 24px; }
+  .client-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 8px; }
+  .client-item { background: rgba(255,255,255,0.03); border-radius: 8px; padding: 12px 16px; display: flex; align-items: center; gap: 10px; font-size: 13px; }
+  .client-item img { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; object-position: top; }
+  .client-item .client-name { font-weight: 500; color: #ccc; }
 
-  .stat-value {
-    font-size: 20px;
-    font-weight: 700;
-  }
-  .stat-label {
-    font-size: 10px;
-    color: #556;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
+  /* Footer */
+  .footer { text-align: center; padding: 32px 24px; font-size: 12px; color: #445; line-height: 1.8; }
 
-  .cr-bar-wrap {
-    width: 80px;
-    height: 6px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 3px;
-    margin: 6px auto 0;
-    overflow: hidden;
-  }
-  .cr-bar {
-    height: 100%;
-    border-radius: 3px;
-    background: linear-gradient(90deg, #00c9c9, #0088cc);
-    transition: width 0.6s ease;
-  }
+  /* No data */
+  .no-data { text-align: center; padding: 60px 24px; color: #445; }
+  .no-data .icon { font-size: 48px; margin-bottom: 16px; }
+  .no-data h3 { font-size: 18px; color: #667; margin-bottom: 8px; }
 
-  .gladiator-badge {
-    display: inline-block;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    padding: 4px 10px;
-    border-radius: 6px;
-  }
-  .gladiator-badge.qualified {
-    background: linear-gradient(135deg, rgba(0,200,200,0.2), rgba(0,136,204,0.2));
-    color: #00c9c9;
-    border: 1px solid rgba(0,200,200,0.3);
-  }
-  .gladiator-badge.pending {
-    background: rgba(255,255,255,0.05);
-    color: #556;
-    border: 1px solid rgba(255,255,255,0.1);
-  }
-
-  /* ── QUALIFICATION BAR ─────────────────────────────────── */
-  .qual-section {
-    max-width: 900px;
-    margin: 0 auto 48px;
-    padding: 0 24px;
-  }
-  .qual-bar-wrap {
-    background: rgba(255,255,255,0.03);
-    border-radius: 16px;
-    padding: 24px;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    flex-wrap: wrap;
-  }
-  .qual-bar-wrap .label {
-    font-size: 13px;
-    color: #667;
-    font-weight: 500;
-    white-space: nowrap;
-  }
-  .qual-track {
-    flex: 1;
-    min-width: 200px;
-    height: 8px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 4px;
-    position: relative;
-  }
-  .qual-marker {
-    position: absolute;
-    top: -8px;
-    transform: translateX(-50%);
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background-size: cover;
-    background-position: top;
-    border: 2px solid #333;
-    transition: left 0.6s ease;
-  }
-  .qual-threshold {
-    position: absolute;
-    left: calc(100% * 5 / 15);
-    top: -20px;
-    bottom: -20px;
-    width: 2px;
-    background: rgba(0,200,200,0.4);
-  }
-  .qual-threshold-label {
-    position: absolute;
-    left: calc(100% * 5 / 15);
-    bottom: -24px;
-    transform: translateX(-50%);
-    font-size: 10px;
-    color: #00c9c9;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-  }
-
-  /* ── SIGNED CLIENTS ────────────────────────────────────── */
-  .clients-section {
-    max-width: 900px;
-    margin: 0 auto 48px;
-    padding: 0 24px;
-  }
-  .client-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 8px;
-  }
-  .client-item {
-    background: rgba(255,255,255,0.03);
-    border-radius: 8px;
-    padding: 12px 16px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 13px;
-  }
-  .client-item img {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    object-fit: cover;
-    object-position: top;
-  }
-  .client-item .client-name {
-    font-weight: 500;
-    color: #ccc;
-  }
-
-  /* ── FOOTER ────────────────────────────────────────────── */
-  .footer {
-    text-align: center;
-    padding: 32px 24px;
-    font-size: 12px;
-    color: #334;
-  }
-  .footer .rules {
-    max-width: 500px;
-    margin: 0 auto;
-    line-height: 1.6;
-  }
-
-  /* ── RESPONSIVE ────────────────────────────────────────── */
   @media (max-width: 700px) {
     .header h1 { font-size: 28px; }
+    .header .subtitle { font-size: 18px; }
     .podium { flex-direction: column; align-items: center; }
     .podium-card { order: unset !important; }
     .podium-card .podium-base { display: none; }
     .stats-table th:nth-child(4), .stats-table td:nth-child(4) { display: none; }
   }
-
-  /* ── NO DATA STATE ─────────────────────────────────────── */
-  .no-data {
-    text-align: center;
-    padding: 60px 24px;
-    color: #445;
-  }
-  .no-data .icon { font-size: 48px; margin-bottom: 16px; }
-  .no-data h3 { font-size: 18px; color: #667; margin-bottom: 8px; }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<div class="header">
-  <div class="header-badge">April 2026</div>
-  <h1>Gladiator Challenge</h1>
-  <p class="subtitle">Close 5+ deals to enter the arena. Most deals wins.</p>
-  <div class="prizes">
-    <div class="prize-chip gold"><span class="medal">&#127942;</span> 1st — $1,000</div>
-    <div class="prize-chip silver"><span class="medal">&#129352;</span> 2nd — $500</div>
-    <div class="prize-chip bronze"><span class="medal">&#129353;</span> 3rd — $250</div>
-  </div>
-</div>
-
-<!-- CONTENT — populated by JS from data.json -->
-<div id="content">
-  <div class="no-data">
-    <div class="icon">&#9876;</div>
-    <h3>Loading leaderboard...</h3>
-    <p>Fetching data from GHL and Slack</p>
-  </div>
-</div>
-
-<!-- FOOTER -->
-<div class="footer">
-  <div class="rules">
-    Close rate = deals signed / calls where prospect showed up<br>
-    Minimum 5 deals to enter the Gladiator Pool<br>
-    Data from GHL appointments + #ffm-new-client
-  </div>
-  <p style="margin-top:16px; color:#223;">Last updated: <span id="last-updated">—</span></p>
-</div>
+<div class="period-nav" id="period-nav"></div>
+<div class="header" id="header"></div>
+<div id="content"><div class="no-data"><div class="icon">&#9876;</div><h3>Loading...</h3></div></div>
+<div class="footer" id="footer"></div>
 
 <script>
+const SUPABASE_URL = 'https://scnezkvrcioqnjzczdjo.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjbmV6a3ZyY2lvcW5qemN6ZGpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjAyMDQsImV4cCI6MjA5MDAzNjIwNH0.BkdJd4f54s_T76gn7gyC96aGKoe-Xfqnn59P9EbrUDw';
+
 const PHOTOS = {
-  'Peter Haby':         'photos/peter.png',
-  'Aldo Feoli':         'photos/aldo.png',
-  'Dominic Barrett':    'photos/dominic.png',
-  'Magda Sitek':        'photos/magda.png',
+  'Peter Haby': 'photos/peter.png',
+  'Aldo Feoli': 'photos/aldo.png',
+  'Dominic Barrett': 'photos/dominic.png',
+  'Magda Sitek': 'photos/magda.png',
   'Weronika Olszewska': 'photos/weronika.png',
 };
 
-const PRIZES = ['$1,000', '$500', '$250'];
+let currentPeriod = null;
+let allPeriods = [];
 
-// Embedded data — updated by the leaderboard script
-// LEADERBOARD_DATA_START
-let EMBEDDED_DATA = {"generatedAt":"2026-03-28T19:51:17.274Z","period":"April 2026","minDeals":5,"prizes":["$1,000","$500","$250"],"entries":[{"name":"Peter Haby","market":"US","callsTaken":0,"dealsClosed":0,"closeRate":"—","inGladiatorPool":false,"clients":[]},{"name":"Aldo Feoli","market":"US","callsTaken":0,"dealsClosed":0,"closeRate":"—","inGladiatorPool":false,"clients":[]},{"name":"Dominic Barrett","market":"US","callsTaken":0,"dealsClosed":0,"closeRate":"—","inGladiatorPool":false,"clients":[]},{"name":"Magda Sitek","market":"PL","callsTaken":0,"dealsClosed":0,"closeRate":"—","inGladiatorPool":false,"clients":[]},{"name":"Weronika Olszewska","market":"PL","callsTaken":0,"dealsClosed":0,"closeRate":"—","inGladiatorPool":false,"clients":[]}]};
-// LEADERBOARD_DATA_END
+async function query(params) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard_entries?${params}`, {
+    headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${SUPABASE_ANON}` }
+  });
+  return res.json();
+}
 
-async function loadData() {
-  // Try fetch first (works when served), fall back to embedded data
-  try {
-    const res = await fetch('leaderboard-data.json?' + Date.now());
-    if (res.ok) return await res.json();
-  } catch {}
-  return EMBEDDED_DATA;
+async function loadPeriods() {
+  const data = await query('select=period&order=period.desc');
+  return [...new Set(data.map(d => d.period))];
+}
+
+async function loadEntries(period) {
+  return query(`period=eq.${encodeURIComponent(period)}&order=deals_closed.desc`);
+}
+
+function flag(m) { return m === 'US' ? '\u{1F1FA}\u{1F1F8} US' : '\u{1F1F5}\u{1F1F1} PL'; }
+
+function renderNav(periods, active) {
+  document.getElementById('period-nav').innerHTML = periods.map(p =>
+    `<button class="period-btn ${p === active ? 'active' : ''}" onclick="switchPeriod('${p}')">${p}</button>`
+  ).join('');
+}
+
+function renderHeader(entries) {
+  const e0 = entries[0];
+  const minDeals = e0?.min_deals ?? 5;
+  const prizes = e0?.prizes ?? ['$1,000'];
+  const emojis = ['\u{1F3C6}', '\u{1F948}', '\u{1F949}'];
+  const cls = ['p0', 'p1', 'p2'];
+  const labels = ['1st', '2nd', '3rd'];
+
+  document.getElementById('header').innerHTML = `
+    <div class="header-badge">${currentPeriod}</div>
+    <h1>Gladiator Challenge</h1>
+    <p class="subtitle">Close ${minDeals}+ deals to enter the arena. Most deals wins.</p>
+    <div class="prizes">
+      ${prizes.map((p, i) => `<div class="prize-chip ${cls[i] ?? ''}">${emojis[i] ?? ''} ${labels[i]} \u2014 ${p}</div>`).join('')}
+    </div>`;
 }
 
 function renderPodium(entries) {
-  const gladiators = entries.filter(e => e.inGladiatorPool);
-  if (gladiators.length === 0) {
-    return `
-      <div class="gladiator-section">
-        <div class="section-title">Gladiator Pool</div>
-        <div class="no-data">
-          <div class="icon">&#9876;</div>
-          <h3>No gladiators yet</h3>
-          <p>Need 5+ deals to enter the arena. Keep closing!</p>
-        </div>
-      </div>`;
+  const gladiators = entries.filter(e => e.in_gladiator_pool);
+  const prizes = entries[0]?.prizes ?? ['$1,000'];
+  const minDeals = entries[0]?.min_deals ?? 5;
+
+  if (!gladiators.length) {
+    return `<div class="gladiator-section">
+      <div class="section-title">Gladiator Pool</div>
+      <div class="no-data"><div class="icon">&#9876;</div><h3>No gladiators yet</h3><p>Need ${minDeals}+ deals to enter the arena</p></div>
+    </div>`;
   }
 
-  const positions = ['second', 'first', 'third'];
-  const cards = gladiators.slice(0, 3).map((e, i) => {
-    const pos = positions[i] || '';
-    const rank = i + 1;
-    return `
-      <div class="podium-card ${pos}">
-        <div class="podium-photo-wrap">
-          <img class="podium-photo" src="${PHOTOS[e.name]}" alt="${e.name}">
-          <div class="podium-rank">${rank}</div>
-        </div>
-        <div class="podium-name">${e.name}</div>
-        <div class="podium-market">${e.market === 'US' ? '🇺🇸 US' : '🇵🇱 PL'}</div>
-        <div class="podium-deals">${e.dealsClosed}</div>
-        <div class="podium-deals-label">deals closed</div>
-        <div class="podium-prize">${PRIZES[i]}</div>
-        <div class="podium-base"></div>
-      </div>`;
-  });
+  const pos = ['first', 'second', 'third'];
+  const cards = gladiators.slice(0, 3).map((e, i) => `
+    <div class="podium-card ${pos[i]}">
+      <div class="podium-photo-wrap">
+        <img class="podium-photo" src="${PHOTOS[e.closer_name] ?? ''}" alt="${e.closer_name}">
+        <div class="podium-rank">${i + 1}</div>
+      </div>
+      <div class="podium-name">${e.closer_name}</div>
+      <div class="podium-market">${flag(e.market)}</div>
+      <div class="podium-deals">${e.deals_closed}</div>
+      <div class="podium-deals-label">deals closed</div>
+      ${prizes[i] ? `<div class="podium-prize">${prizes[i]}</div>` : ''}
+      <div class="podium-base"></div>
+    </div>`);
 
-  // Reorder for podium display: [2nd, 1st, 3rd]
-  const reordered = cards.length >= 2
-    ? [cards[1], cards[0], cards[2]].filter(Boolean)
-    : cards;
-
-  return `
-    <div class="gladiator-section">
-      <div class="section-title">Gladiator Pool</div>
-      <div class="podium">${reordered.join('')}</div>
-    </div>`;
+  return `<div class="gladiator-section">
+    <div class="section-title">Gladiator Pool</div>
+    <div class="podium">${cards.join('')}</div>
+  </div>`;
 }
 
 function renderTable(entries) {
-  const sorted = [...entries].sort((a, b) => b.dealsClosed - a.dealsClosed);
-  const maxDeals = Math.max(...sorted.map(e => e.dealsClosed), 1);
-
-  const rows = sorted.map(e => {
-    const crNum = parseFloat(e.closeRate) || 0;
-    const badge = e.inGladiatorPool
+  const minDeals = entries[0]?.min_deals ?? 5;
+  const rows = entries.map(e => {
+    const cr = parseFloat(e.close_rate) || 0;
+    const badge = e.in_gladiator_pool
       ? '<span class="gladiator-badge qualified">&#9876; Gladiator</span>'
-      : `<span class="gladiator-badge pending">${e.dealsClosed}/5</span>`;
-
-    return `
-      <tr class="stats-row">
-        <td>
-          <div class="closer-info">
-            <img class="closer-photo-sm" src="${PHOTOS[e.name]}" alt="${e.name}">
-            <div>
-              <div class="closer-name">${e.name}</div>
-              <span class="closer-market-tag">${e.market === 'US' ? '🇺🇸 US' : '🇵🇱 PL'}</span>
-            </div>
-          </div>
-        </td>
-        <td>
-          <div class="stat-value">${e.callsTaken}</div>
-          <div class="stat-label">showed</div>
-        </td>
-        <td>
-          <div class="stat-value">${e.dealsClosed}</div>
-          <div class="stat-label">deals</div>
-        </td>
-        <td>
-          <div class="stat-value">${e.closeRate}</div>
-          <div class="cr-bar-wrap"><div class="cr-bar" style="width:${Math.min(crNum, 100)}%"></div></div>
-        </td>
-        <td>${badge}</td>
-      </tr>`;
+      : `<span class="gladiator-badge pending">${e.deals_closed}/${minDeals}</span>`;
+    return `<tr class="stats-row">
+      <td><div class="closer-info">
+        <img class="closer-photo-sm" src="${PHOTOS[e.closer_name] ?? ''}" alt="">
+        <div><div class="closer-name">${e.closer_name}</div><span class="closer-market-tag">${flag(e.market)}</span></div>
+      </div></td>
+      <td><div class="stat-value">${e.calls_taken}</div><div class="stat-label">showed</div></td>
+      <td><div class="stat-value">${e.deals_closed}</div><div class="stat-label">deals</div></td>
+      <td><div class="stat-value">${e.close_rate}</div><div class="cr-bar-wrap"><div class="cr-bar" style="width:${Math.min(cr, 100)}%"></div></div></td>
+      <td>${badge}</td>
+    </tr>`;
   }).join('');
 
-  return `
-    <div class="stats-section">
-      <div class="section-title">All Closers</div>
-      <table class="stats-table">
-        <thead><tr>
-          <th>Closer</th>
-          <th>Calls</th>
-          <th>Deals</th>
-          <th>Close Rate</th>
-          <th>Status</th>
-        </tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>`;
+  return `<div class="stats-section">
+    <div class="section-title">All Closers</div>
+    <table class="stats-table"><thead><tr><th>Closer</th><th>Calls</th><th>Deals</th><th>Close Rate</th><th>Status</th></tr></thead>
+    <tbody>${rows}</tbody></table>
+  </div>`;
 }
 
 function renderClients(entries) {
-  const withClients = entries.filter(e => e.clients && e.clients.length > 0);
-  if (withClients.length === 0) return '';
-
+  const withClients = entries.filter(e => e.clients?.length > 0);
+  if (!withClients.length) return '';
   const items = withClients.flatMap(e =>
-    e.clients.map(c => `
-      <div class="client-item">
-        <img src="${PHOTOS[e.name]}" alt="${e.name}">
-        <span class="client-name">${c}</span>
-      </div>`)
+    e.clients.map(c => `<div class="client-item"><img src="${PHOTOS[e.closer_name] ?? ''}" alt=""><span class="client-name">${String(c).replace(/[<>]/g, '')}</span></div>`)
   );
-
-  return `
-    <div class="clients-section">
-      <div class="section-title">Signed Clients</div>
-      <div class="client-list">${items.join('')}</div>
-    </div>`;
+  return `<div class="clients-section"><div class="section-title">Signed Clients</div><div class="client-list">${items.join('')}</div></div>`;
 }
 
-async function render() {
-  const data = await loadData();
-  if (!data) {
-    document.getElementById('content').innerHTML = `
-      <div class="no-data">
-        <div class="icon">&#9876;</div>
-        <h3>No data yet</h3>
-        <p>Run the leaderboard script to generate data:<br>
-        <code style="color:#00c9c9;font-size:12px;margin-top:8px;display:inline-block">npx tsx --env-file=.env.local scripts/sales-leaderboard.ts</code></p>
-      </div>`;
+function renderFooter(entries) {
+  const e0 = entries[0];
+  const updated = e0?.updated_at ? new Date(e0.updated_at).toLocaleString() : '\u2014';
+  const minDeals = e0?.min_deals ?? 5;
+  document.getElementById('footer').innerHTML = `
+    Close rate = deals signed / unique prospects showed (Fathom)<br>
+    Minimum ${minDeals} deals to enter the Gladiator Pool<br>
+    Data from Fathom call recordings + #ffm-new-client<br><br>
+    Last updated: ${updated}`;
+}
+
+async function switchPeriod(period) {
+  currentPeriod = period;
+  renderNav(allPeriods, period);
+  const entries = await loadEntries(period);
+  if (!entries.length) {
+    document.getElementById('content').innerHTML = '<div class="no-data"><div class="icon">&#9876;</div><h3>No data for this period</h3></div>';
     return;
   }
-
-  const entries = data.entries || [];
-  const sorted = [...entries].sort((a, b) => b.dealsClosed - a.dealsClosed);
-
-  document.getElementById('content').innerHTML =
-    renderPodium(sorted) +
-    renderTable(sorted) +
-    renderClients(sorted);
-
-  document.getElementById('last-updated').textContent = data.generatedAt
-    ? new Date(data.generatedAt).toLocaleString()
-    : '—';
+  renderHeader(entries);
+  document.getElementById('content').innerHTML = renderPodium(entries) + renderTable(entries) + renderClients(entries);
+  renderFooter(entries);
 }
 
-render();
-// Auto-refresh every 5 minutes
-setInterval(render, 5 * 60 * 1000);
+async function init() {
+  const periods = await loadPeriods();
+  allPeriods = periods;
+  if (!periods.length) {
+    document.getElementById('content').innerHTML = '<div class="no-data"><div class="icon">&#9876;</div><h3>No data yet</h3></div>';
+    return;
+  }
+  switchPeriod(periods[0]);
+}
+
+init();
+setInterval(() => { if (currentPeriod) switchPeriod(currentPeriod); }, 5 * 60 * 1000);
 </script>
 </body>
 </html>
