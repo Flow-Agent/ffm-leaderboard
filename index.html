@@ -237,12 +237,21 @@ function renderTable(entries) {
 function renderClients(entries) {
   const withClients = entries.filter(e => e.clients?.length > 0);
   if (!withClients.length) return '';
-  const items = withClients.flatMap(e =>
-    e.clients.map(c => {
-      const name = typeof c === 'object' ? c.name : String(c).replace(/[<>]/g, '');
-      const date = typeof c === 'object' && c.date ? c.date : '';
-      return `<div class="client-item"><img src="${PHOTOS[e.closer_name] ?? ''}" alt=""><span class="client-name">${name}</span>${date ? `<span class="client-date">${date}</span>` : ''}</div>`;
-    })
+  const allClients = withClients.flatMap(e =>
+    e.clients.map(c => ({
+      closerName: e.closer_name,
+      name: typeof c === 'object' ? c.name : String(c).replace(/[<>]/g, ''),
+      date: typeof c === 'object' && c.date ? c.date : '',
+    }))
+  );
+  // Sort by date descending (Mar 30 before Mar 9, etc.)
+  const months = {Jan:1,Feb:2,Mar:3,Apr:4,May:5,Jun:6,Jul:7,Aug:8,Sep:9,Oct:10,Nov:11,Dec:12};
+  allClients.sort((a, b) => {
+    const [am, ad] = a.date.split(' '); const [bm, bd] = b.date.split(' ');
+    return (months[bm]||0)*100 + (parseInt(bd)||0) - ((months[am]||0)*100 + (parseInt(ad)||0));
+  });
+  const items = allClients.map(c =>
+    `<div class="client-item"><img src="${PHOTOS[c.closerName] ?? ''}" alt=""><span class="client-name">${c.name}</span>${c.date ? `<span class="client-date">${c.date}</span>` : ''}</div>`
   );
   return `<div class="clients-section"><div class="section-title">Signed Clients</div><div class="client-list">${items.join('')}</div></div>`;
 }
