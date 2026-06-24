@@ -142,7 +142,9 @@ async function query(params) {
 
 async function loadPeriods() {
   const data = await query('select=period&order=period.desc');
-  return [...new Set(data.map(d => d.period))];
+  // Sort chronologically (newest month first) so the current month is the
+  // default tab — string order would wrongly put "May" before "June".
+  return [...new Set(data.map(d => d.period))].sort((a, b) => new Date(b) - new Date(a));
 }
 
 async function loadEntries(period) {
