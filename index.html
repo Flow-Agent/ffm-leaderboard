@@ -64,8 +64,8 @@
   .podium-card.third .podium-base { height: 50px; background: linear-gradient(180deg, rgba(205,127,50,0.1), rgba(205,127,50,0.02)); }
 
   /* Table */
-  .stats-section { max-width: 900px; margin: 0 auto 48px; padding: 0 24px; }
-  .stats-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+  .stats-section { max-width: 1100px; margin: 0 auto 48px; padding: 0 24px; overflow-x: auto; }
+  .stats-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; min-width: 860px; }
   .stats-table th { font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: #556; text-align: left; padding: 0 16px 8px; }
   .stats-table th:not(:first-child) { text-align: center; }
   .stats-row { background: rgba(255,255,255,0.03); border-radius: 12px; transition: background 0.2s; }
@@ -108,7 +108,6 @@
     .podium { flex-direction: column; align-items: center; }
     .podium-card { order: unset !important; }
     .podium-card .podium-base { display: none; }
-    .stats-table th:nth-child(4), .stats-table td:nth-child(4) { display: none; }
   }
 </style>
 </head>
@@ -124,9 +123,6 @@ const SUPABASE_URL = 'https://scnezkvrcioqnjzczdjo.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjbmV6a3ZyY2lvcW5qemN6ZGpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjAyMDQsImV4cCI6MjA5MDAzNjIwNH0.BkdJd4f54s_T76gn7gyC96aGKoe-Xfqnn59P9EbrUDw';
 
 const PHOTOS = {
-  'Peter Haby': 'photos/peter.png',
-  'Aldo Feoli': 'photos/aldo.png',
-  'Dominic Barrett': 'photos/dominic.png',
   'Magda Sitek': 'photos/magda.png',
   'Weronika Olszewska': 'photos/weronika.png',
 };
@@ -152,6 +148,15 @@ async function loadEntries(period) {
 }
 
 function flag(m) { return m === 'US' ? '\u{1F1FA}\u{1F1F8} US' : '\u{1F1F5}\u{1F1F1} PL'; }
+
+// cash_collected and AOV are stored in whole currency units (not cents).
+function fmtMoney(value, currency) {
+  const n = Number(value) || 0;
+  if (!n) return '—';
+  const cur = (currency || 'pln').toLowerCase();
+  const v = Math.round(n).toLocaleString(cur === 'usd' ? 'en-US' : 'pl-PL');
+  return cur === 'usd' ? `$${v}` : `${v} zł`;
+}
 
 function renderNav(periods, active) {
   document.getElementById('period-nav').innerHTML = periods.map(p =>
@@ -212,6 +217,7 @@ function renderTable(entries) {
   const minDeals = entries[0]?.min_deals ?? 5;
   const rows = entries.map(e => {
     const cr = parseFloat(e.close_rate) || 0;
+    const cur = e.cash_currency || 'pln';
     const badge = e.in_gladiator_pool
       ? '<span class="gladiator-badge qualified">&#9876; Gladiator</span>'
       : `<span class="gladiator-badge pending">${e.deals_closed}/${minDeals}</span>`;
@@ -220,16 +226,20 @@ function renderTable(entries) {
         <img class="closer-photo-sm" src="${PHOTOS[e.closer_name] ?? ''}" alt="">
         <div><div class="closer-name">${e.closer_name}</div><span class="closer-market-tag">${flag(e.market)}</span></div>
       </div></td>
-      <td><div class="stat-value">${e.calls_taken}</div><div class="stat-label">showed</div></td>
-      <td><div class="stat-value">${e.deals_closed}</div><div class="stat-label">deals</div></td>
+      <td><div class="stat-value">${e.calls_taken}</div><div class="stat-label">calls</div></td>
       <td><div class="stat-value">${e.close_rate}</div><div class="cr-bar-wrap"><div class="cr-bar" style="width:${Math.min(cr, 100)}%"></div></div></td>
+      <td><div class="stat-value" style="color:#34d399">${fmtMoney(e.cash_collected, cur)}</div><div class="stat-label">collected</div></td>
+      <td><div class="stat-value">${e.deals_closed}</div><div class="stat-label">deals</div></td>
+      <td><div class="stat-value" style="color:#ffd700">${e.gold_total ?? 0}</div><div class="stat-label">AOV ${fmtMoney(e.gold_aov, cur)}</div></td>
+      <td><div class="stat-value" style="color:#c0c0c0">${e.silver_total ?? 0}</div><div class="stat-label">AOV ${fmtMoney(e.silver_aov, cur)}</div></td>
+      <td><div class="stat-value" style="color:#67e8f9">${fmtMoney(e.total_aov, cur)}</div><div class="stat-label">total AOV</div></td>
       <td>${badge}</td>
     </tr>`;
   }).join('');
 
   return `<div class="stats-section">
-    <div class="section-title">All Closers</div>
-    <table class="stats-table"><thead><tr><th>Closer</th><th>Calls</th><th>Deals</th><th>Close Rate</th><th>Status</th></tr></thead>
+    <div class="section-title">Closer Metrics</div>
+    <table class="stats-table"><thead><tr><th>Closer</th><th>Calls</th><th>Close Rate</th><th>Cash</th><th>Deals</th><th>Gold</th><th>Silver</th><th>Total AOV</th><th>Status</th></tr></thead>
     <tbody>${rows}</tbody></table>
   </div>`;
 }
@@ -261,9 +271,8 @@ function renderFooter(entries) {
   const updated = e0?.updated_at ? new Date(e0.updated_at).toLocaleString() : '\u2014';
   const minDeals = e0?.min_deals ?? 5;
   document.getElementById('footer').innerHTML = `
-    Close rate = deals signed / unique prospects showed (Fathom)<br>
-    Minimum ${minDeals} deals to enter the Gladiator Pool<br>
-    Data from Fathom call recordings + #ffm-new-client<br><br>
+    Metrics (calls, close rate, cash, Gold/Silver, AOV) pulled from the Sales Master Sheet<br>
+    Minimum ${minDeals} deals to enter the Gladiator Pool<br><br>
     Last updated: ${updated}`;
 }
 
